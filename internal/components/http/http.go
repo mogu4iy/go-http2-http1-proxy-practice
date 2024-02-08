@@ -9,31 +9,37 @@ import (
 type HTTP interface {
 	AddServer(s server.Server)
 	AddUpstream(u upstream.Upstream)
-	Init()
+	Init() error
 	_mustImplementHTTP()
 }
 
 type http struct {
-	Upstreams []upstream.Upstream
-	Servers   []server.Server
+	Servers []server.Server
 }
 
 func (h *http) AddServer(s server.Server) {
 	h.Servers = append(h.Servers, s)
 }
 
-func (h *http) AddUpstream(u upstream.Upstream) {
-	h.Upstreams = append(h.Upstreams, u)
-}
+func (h *http) AddUpstream(u upstream.Upstream) {}
 
-func (h *http) Init() {}
+func (h *http) Init() error {
+	for _, s := range h.Servers {
+		//	TOOD: Implement error handling
+		go s.Init()
+	}
+	return nil
+}
 
 func (h *http) _mustImplementHTTP() {}
 
 func New(c config.HTTP) (HTTP, error) {
 	h := &http{}
 	for _, sC := range c.Servers {
-		s := server.New(sC)
+		s, err := server.New(sC)
+		if err != nil {
+			return nil, err
+		}
 		h.AddServer(s)
 	}
 	for _, uC := range c.Upstreams {

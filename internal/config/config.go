@@ -21,9 +21,10 @@ type Location struct {
 }
 
 type Server struct {
-	Listen     uint8      `yaml:"listen"`
-	ServerName string     `yaml:"server_name"`
-	Locations  []Location `yaml:"locations"`
+	Version    constants.HTTPVersion `yaml:"version"`
+	Listen     uint8                 `yaml:"listen"`
+	ServerName string                `yaml:"server_name"`
+	Locations  []Location            `yaml:"locations"`
 }
 
 type UpstreamServer struct {
@@ -40,9 +41,8 @@ type Upstream struct {
 }
 
 type HTTP struct {
-	Version   constants.HTTPVersion `yaml:"version"`
-	Servers   []Server              `yaml:"servers"`
-	Upstreams []Upstream            `yaml:"upstreams"`
+	Servers   []Server   `yaml:"servers"`
+	Upstreams []Upstream `yaml:"upstreams"`
 }
 
 type Config struct {

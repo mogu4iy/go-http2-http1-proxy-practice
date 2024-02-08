@@ -2,6 +2,8 @@ package upstream
 
 import "http2-http1.1-proxy/internal/config"
 
+// TODO: Implement upstream initialization and address resolving
+
 type Upstream interface {
 	RegisterServer(c config.UpstreamServer) error
 	ResolveServer() error
@@ -11,7 +13,6 @@ type Upstream interface {
 type Config struct {
 	Name string `yaml:"name"`
 }
-
 
 type upstream struct {
 	servers []any

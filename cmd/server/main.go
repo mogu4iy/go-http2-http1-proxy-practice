@@ -20,6 +20,7 @@ func main() {
 		HTTPs = append(HTTPs, h)
 	}
 	for _, h := range HTTPs {
+		//	TOOD: Implement error handling
 		go h.Init()
 	}
 }
