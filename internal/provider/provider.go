@@ -7,10 +7,33 @@ import (
 
 type HTTPProvider interface {
 	Init(addr string) error
-	SetHandler(pattern string, handler http.Handler)
+	SetHandler(pattern string, handler http.HandlerFunc)
 	ListenAndServe() error
-	_mustImplementProvider()
+	_mustEmbedUnimplementedProvider()
 }
+
+type unimplementedHTTPProvider struct {
+	server *http.Server
+	mux    *http.ServeMux
+}
+
+func (h *unimplementedHTTPProvider) Init(addr string) error {
+	return nil
+}
+
+func (h *unimplementedHTTPProvider) SetHandler(pattern string, handler http.HandlerFunc) {
+	h.mux.HandleFunc(pattern, handler)
+}
+
+func (h *unimplementedHTTPProvider) ListenAndServe() error {
+	err := h.server.ListenAndServe()
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (_ *unimplementedHTTPProvider) _mustEmbedUnimplementedProvider() {}
 
 func New(version constants.HTTPVersion) HTTPProvider {
 	switch version {

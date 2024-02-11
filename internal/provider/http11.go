@@ -6,8 +6,7 @@ import (
 )
 
 type HTTP11Provider struct {
-	server *http.Server
-	mux    *http.ServeMux
+	unimplementedHTTPProvider
 }
 
 func (h *HTTP11Provider) Init(addr string) error {
@@ -21,17 +20,3 @@ func (h *HTTP11Provider) Init(addr string) error {
 	}
 	return nil
 }
-
-func (h *HTTP11Provider) SetHandler(pattern string, handler http.Handler) {
-	h.mux.Handle(pattern, handler)
-}
-
-func (h *HTTP11Provider) ListenAndServe() error {
-	err := h.server.ListenAndServe()
-	if err != nil {
-		return err
-	}
-	return nil
-}
-
-func (h *HTTP11Provider) _mustImplementProvider() {}

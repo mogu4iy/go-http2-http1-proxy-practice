@@ -5,11 +5,13 @@ import (
 	"http2-http1.1-proxy/internal/components/location"
 	"http2-http1.1-proxy/internal/config"
 	"http2-http1.1-proxy/internal/provider"
+	"net/http"
 )
 
 type Server interface {
-	Init() error
-	AddLocation(l location.Location)
+	addLocation(l location.Location)
+	serverHandlerDecorator(h http.HandlerFunc) http.HandlerFunc
+	ListenAndServe() error
 	_mustImplementServer()
 }
 
@@ -17,16 +19,23 @@ type server struct {
 	provider provider.HTTPProvider
 }
 
-func (s *server) Init() error {
+func (s *server) serverHandlerDecorator(next http.HandlerFunc) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		next(w, r)
+	}
+}
+
+func (s *server) addLocation(l location.Location) {
+	pattern, handler := l.GetHandler()
+	s.provider.SetHandler(pattern, s.serverHandlerDecorator(handler))
+}
+
+func (s *server) ListenAndServe() error {
 	err := s.provider.ListenAndServe()
 	if err != nil {
 		return err
 	}
 	return nil
-}
-
-func (s *server) AddLocation(l location.Location) {
-	s.provider.SetHandler(l.GetHandler())
 }
 
 func (_ *server) _mustImplementServer() {}
@@ -42,7 +51,8 @@ func New(c config.Server) (Server, error) {
 
 	for _, lC := range c.Locations {
 		l := location.New(lC)
-		s.AddLocation(l)
+		s.addLocation(l)
 	}
+
 	return s, nil
 }

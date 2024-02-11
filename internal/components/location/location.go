@@ -6,14 +6,35 @@ import (
 )
 
 type Location interface {
-	GetHandler() (string, http.Handler)
-	SetPattern(string)
-	_mustImplementLocation()
+	init()
+	setPattern(pattern string)
+	GetHandler() (string, http.HandlerFunc)
+	_mustEmbedUnimplementedLocation()
 }
 
+type UnimplementedLocation struct {
+	pattern string
+	handler http.HandlerFunc
+}
+
+func (l *UnimplementedLocation) init() {}
+
+func (l *UnimplementedLocation) setPattern(pattern string) {
+	l.pattern = pattern
+}
+
+func (l *UnimplementedLocation) GetHandler() (string, http.HandlerFunc) {
+	return l.pattern, l.handler
+}
+
+func (_ *UnimplementedLocation) _mustEmbedUnimplementedLocation() {}
+
 func New(c config.Location) Location {
-	//	TODO: Parse c and based on configuration return Location
-	l := &ProxyLocation{}
-	l.SetPattern(c.Path)
+	var l Location
+	if c.ProxyPass != "" {
+		l = &ProxyLocation{}
+	}
+	l.setPattern(c.Path)
+	l.init()
 	return l
 }

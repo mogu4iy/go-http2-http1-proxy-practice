@@ -7,8 +7,7 @@ import (
 )
 
 type HTTP2Provider struct {
-	server *http.Server
-	mux    *http.ServeMux
+	unimplementedHTTPProvider
 }
 
 func (h *HTTP2Provider) Init(addr string) error {
@@ -27,17 +26,3 @@ func (h *HTTP2Provider) Init(addr string) error {
 	}
 	return nil
 }
-
-func (h *HTTP2Provider) SetHandler(pattern string, handler http.Handler) {
-	h.mux.Handle(pattern, handler)
-}
-
-func (h *HTTP2Provider) ListenAndServe() error {
-	err := h.server.ListenAndServe()
-	if err != nil {
-		return err
-	}
-	return nil
-}
-
-func (h *HTTP2Provider) _mustImplementProvider() {}
