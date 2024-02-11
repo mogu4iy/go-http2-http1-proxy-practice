@@ -10,19 +10,12 @@ type HTTP interface {
 	Init() error
 	addServer(s server.Server)
 	addUpstream(u upstream.Upstream)
-	_mustImplementHTTP()
 }
 
 type http struct {
-	dns dns
-	servers []server.Server
+	servers        []server.Server
+	upstreamClient upstream.Client
 }
-
-func (h *http) addServer(s server.Server) {
-	h.servers = append(h.servers, s)
-}
-
-func (h *http) addUpstream(u upstream.Upstream) {}
 
 func (h *http) Init() error {
 	for _, s := range h.servers {
@@ -32,12 +25,22 @@ func (h *http) Init() error {
 	return nil
 }
 
-func (h *http) _mustImplementHTTP() {}
+func (h *http) addServer(s server.Server) {
+	h.servers = append(h.servers, s)
+}
+
+func (h *http) addUpstream(u upstream.Upstream) {
+	h.upstreamClient.AddUpstream(u)
+}
 
 func New(c config.HTTP) (HTTP, error) {
-	h := &http{}
+	upstreamClient := upstream.NewClient()
+
+	h := &http{
+		upstreamClient: upstreamClient,
+	}
 	for _, sC := range c.Servers {
-		s, err := server.New(sC)
+		s, err := server.New(sC, upstreamClient)
 		if err != nil {
 			return nil, err
 		}
@@ -45,10 +48,7 @@ func New(c config.HTTP) (HTTP, error) {
 	}
 
 	for _, uC := range c.Upstreams {
-		u, err := upstream.New(uC)
-		if err != nil {
-			return nil, err
-		}
+		u := upstream.New(uC)
 		h.addUpstream(u)
 	}
 

@@ -7,10 +7,9 @@ import (
 )
 
 type ProxyHeaders struct {
-	Upgrade          string `yaml:"Upgrade"`
-	Connection       string `yaml:"Connection"`
-	Host             string `yaml:"Host"`
-	ProxyCacheBypass string `yaml:"proxy_cache_bypass"`
+	Upgrade    string `yaml:"upgrade" header:"Upgrade"`
+	Connection string `yaml:"connection" header:"Connection"`
+	Host       string `yaml:"host" header:"Host"`
 }
 
 type Location struct {
@@ -28,11 +27,9 @@ type Server struct {
 }
 
 type UpstreamServer struct {
-	Server      string `yaml:"server"`
-	Weight      int    `yaml:"weight,omitempty"`
-	MaxFails    int    `yaml:"max_fails,omitempty"`
-	FailTimeout string `yaml:"fail_timeout,omitempty"`
-	Backup      bool   `yaml:"backup,omitempty"`
+	Server string `yaml:"server"`
+	Weight int    `yaml:"weight,omitempty"`
+	Backup bool   `yaml:"backup,omitempty"`
 }
 
 type Upstream struct {
